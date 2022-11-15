@@ -7,22 +7,23 @@ import (
 	"github.com/pkg/errors"
 )
 
-func parseRotationTemplateByName(name string) (*api.Rotation, error) {
-	content, err := templateReader.readRotationTemplate(normalizeTemplateName(name))
+// ParseRotationTemplateByName parses the content of a rotation template by name
+func (p ProfileParser) ParseRotationTemplateByName(name string) (*api.Rotation, error) {
+	content, err := p.reader.ReadRotationTemplate(normalizeTemplateName(name))
 	if err != nil {
 		return nil, err
 	}
-	return ParseRotationTemplate(content)
+	return p.ParseRotationTemplate(content)
 }
 
 // ParseRotationTemplate parses the content of a rotation template
-func ParseRotationTemplate(content []byte) (*api.Rotation, error) {
+func (p ProfileParser) ParseRotationTemplate(content []byte) (*api.Rotation, error) {
 	if len(content) == 0 {
 		return nil, nil
 	}
 	var err error
 	var rot api.Rotation
-	content, err = createFinalTemplate(content, templateReader.readRotationTemplate)
+	content, err = createFinalTemplate(content, p.reader.ReadRotationTemplate)
 	if err != nil {
 		return nil, err
 	}

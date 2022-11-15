@@ -61,15 +61,19 @@ var profileTemplateDummyData = map[string]string{
 		"usages_AT": 1,
 		"usages_other": 0
 	}]`,
-	"/etc/mytoken/restrictions.d/ip-this": `{"ip":["this"]}`,
+	"/etc/mytoken/restrictions.d/ip-this": `{"hosts":["this"]}`,
 	"/etc/mytoken/restrictions.d/1d":      `{"exp":"+1d"}`,
 	"/etc/mytoken/restrictions.d/G":       `{"exp":"+1d","nbf":"+1h"}`,
 	"~/.config/mytoken/restrictions.d/G":  `{"exp":"+2d","usages_AT":1}`,
 }
 
+var profileParser *ProfileParser
+var fileReader *FileTemplateReader
+
 func TestMain(m *testing.M) {
-	templateReader = newTemplateReader(readDummyData)
-	templateReader.userBaseDir = "~/.config/mytoken"
+	fileReader = newFileTemplateReader(readDummyData)
+	fileReader.userBaseDir = "~/.config/mytoken"
+	profileParser = NewProfileParser(fileReader)
 	os.Exit(m.Run())
 }
 
@@ -77,7 +81,7 @@ func readDummyData(path string) ([]byte, error) {
 	return []byte(profileTemplateDummyData[path]), nil
 }
 
-func TestTemplateReader_ReadFile(t *testing.T) {
+func TestFileTemplateReader_ReadFile(t *testing.T) {
 	tests := []struct {
 		name    string
 		path    string
@@ -118,7 +122,7 @@ func TestTemplateReader_ReadFile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := templateReader.ReadFile(tt.path)
+				got, err := fileReader.ReadFile(tt.path)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("ReadFile() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -131,7 +135,7 @@ func TestTemplateReader_ReadFile(t *testing.T) {
 	}
 }
 
-func TestTemplateReader_readCapabilityTemplate(t *testing.T) {
+func TestFileTemplateReader_ReadCapabilityTemplate(t *testing.T) {
 	tests := []struct {
 		name    string
 		path    string
@@ -154,7 +158,7 @@ func TestTemplateReader_readCapabilityTemplate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := templateReader.readCapabilityTemplate(tt.path)
+				got, err := fileReader.ReadCapabilityTemplate(tt.path)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("readCapabilityTemplate() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -167,7 +171,7 @@ func TestTemplateReader_readCapabilityTemplate(t *testing.T) {
 	}
 }
 
-func TestTemplateReader_readProfile(t *testing.T) {
+func TestFileTemplateReader_ReadProfile(t *testing.T) {
 	tests := []struct {
 		name    string
 		path    string
@@ -190,7 +194,7 @@ func TestTemplateReader_readProfile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := templateReader.readProfile(tt.path)
+				got, err := fileReader.ReadProfile(tt.path)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("readProfile() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -203,7 +207,7 @@ func TestTemplateReader_readProfile(t *testing.T) {
 	}
 }
 
-func TestTemplateReader_readRestrictionsTemplate(t *testing.T) {
+func TestFileTemplateReader_ReadRestrictionsTemplate(t *testing.T) {
 	tests := []struct {
 		name    string
 		path    string
@@ -226,7 +230,7 @@ func TestTemplateReader_readRestrictionsTemplate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := templateReader.readRestrictionsTemplate(tt.path)
+				got, err := fileReader.ReadRestrictionsTemplate(tt.path)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("readRestrictionsTemplate() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -239,7 +243,7 @@ func TestTemplateReader_readRestrictionsTemplate(t *testing.T) {
 	}
 }
 
-func TestTemplateReader_readRotationTemplate(t *testing.T) {
+func TestFileTemplateReader_ReadRotationTemplate(t *testing.T) {
 	tests := []struct {
 		name    string
 		path    string
@@ -262,7 +266,7 @@ func TestTemplateReader_readRotationTemplate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := templateReader.readRotationTemplate(tt.path)
+				got, err := fileReader.ReadRotationTemplate(tt.path)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("readRotationTemplate() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -275,7 +279,7 @@ func TestTemplateReader_readRotationTemplate(t *testing.T) {
 	}
 }
 
-func Test__parseCapabilityTemplate(t *testing.T) {
+func TestProfileParser_ParseCapabilityTemplateToStrings(t *testing.T) {
 	tests := []struct {
 		name           string
 		content        []byte
@@ -371,20 +375,23 @@ func Test__parseCapabilityTemplate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				gotCapStrings, err := _parseCapabilityTemplate(tt.content)
+				gotCapStrings, err := profileParser.ParseCapabilityTemplateToStrings(tt.content)
 				if (err != nil) != tt.wantErr {
-					t.Errorf("_parseCapabilityTemplate() error = %v, wantErr %v", err, tt.wantErr)
+					t.Errorf("ParseCapabilityTemplateToStrings() error = %v, wantErr %v", err, tt.wantErr)
 					return
 				}
 				if !reflect.DeepEqual(gotCapStrings, tt.wantCapStrings) {
-					t.Errorf("_parseCapabilityTemplate() gotCapStrings = %v, want %v", gotCapStrings, tt.wantCapStrings)
+					t.Errorf(
+						"ParseCapabilityTemplateToStrings() gotCapStrings = %v, want %v", gotCapStrings,
+						tt.wantCapStrings,
+					)
 				}
 			},
 		)
 	}
 }
 
-func Test__parseCapabilityTemplateByName(t *testing.T) {
+func TestProfileParser_ParseCapabilityTemplateToStringsByName(t *testing.T) {
 	tests := []struct {
 		name     string
 		fullPath string
@@ -401,14 +408,14 @@ func Test__parseCapabilityTemplateByName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				want, wantErr := _parseCapabilityTemplate([]byte(profileTemplateDummyData[tt.fullPath]))
-				got, err := _parseCapabilityTemplateByName(tt.name)
+				want, wantErr := profileParser.ParseCapabilityTemplateToStrings([]byte(profileTemplateDummyData[tt.fullPath]))
+				got, err := profileParser.ParseCapabilityTemplateToStringsByName(tt.name)
 				if err != nil && wantErr != nil && err.Error() != wantErr.Error() {
-					t.Errorf("_parseCapabilityTemplateByName() error = %v, wantErr %v", err, wantErr)
+					t.Errorf("ParseCapabilityTemplateToStringsByName() error = %v, wantErr %v", err, wantErr)
 					return
 				}
 				if !reflect.DeepEqual(got, want) {
-					t.Errorf("_parseCapabilityTemplateByName() got = %v, want %v", got, want)
+					t.Errorf("ParseCapabilityTemplateToStringsByName() got = %v, want %v", got, want)
 				}
 			},
 		)
@@ -448,7 +455,7 @@ func Test_normalizeTemplateName(t *testing.T) {
 	}
 }
 
-func Test_parseCapabilityTemplate(t *testing.T) {
+func TestProfileParser_ParseCapabilityTemplate(t *testing.T) {
 	tests := []struct {
 		name    string
 		content []byte
@@ -567,7 +574,7 @@ func Test_parseCapabilityTemplate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := ParseCapabilityTemplate(tt.content)
+				got, err := profileParser.ParseCapabilityTemplate(tt.content)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("ParseCapabilityTemplate() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -580,7 +587,7 @@ func Test_parseCapabilityTemplate(t *testing.T) {
 	}
 }
 
-func Test_parseProfile(t *testing.T) {
+func TestProfileParser_ParseProfile(t *testing.T) {
 	aProfile := api.GeneralMytokenRequest{
 		Restrictions: exampleRestrictions,
 		Capabilities: api.NewCapabilities(
@@ -686,7 +693,7 @@ func Test_parseProfile(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := ParseProfile(tt.content)
+				got, err := profileParser.ParseProfile(tt.content)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("ParseProfile() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -699,7 +706,7 @@ func Test_parseProfile(t *testing.T) {
 	}
 }
 
-func Test_parseProfileByName(t *testing.T) {
+func TestProfileParser_ParseProfileByName(t *testing.T) {
 	tests := []struct {
 		name     string
 		fullPath string
@@ -721,8 +728,8 @@ func Test_parseProfileByName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				want, wantErr := ParseProfile([]byte(profileTemplateDummyData[tt.fullPath]))
-				got, err := parseProfileByName(tt.name)
+				want, wantErr := profileParser.ParseProfile([]byte(profileTemplateDummyData[tt.fullPath]))
+				got, err := profileParser.ParseProfileByName(tt.name)
 				if err != nil && wantErr != nil && err.Error() != wantErr.Error() {
 					t.Errorf("parseProfileByName() error = %v, wantErr %v", err, wantErr)
 					return
@@ -750,7 +757,7 @@ var exampleRestrictions = api.Restrictions{
 	},
 }
 
-func Test_parseRestrictionsTemplate(t *testing.T) {
+func TestProfileParser_ParseRestrictionsTemplate(t *testing.T) {
 
 	tests := []struct {
 		name    string
@@ -842,7 +849,7 @@ func Test_parseRestrictionsTemplate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := ParseRestrictionsTemplate(tt.content)
+				got, err := profileParser.ParseRestrictionsTemplate(tt.content)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("ParseRestrictionsTemplate() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -855,7 +862,7 @@ func Test_parseRestrictionsTemplate(t *testing.T) {
 	}
 }
 
-func Test_parseRestrictionsTemplateByName(t *testing.T) {
+func TestProfileParser_ParseRestrictionsTemplateByName(t *testing.T) {
 	tests := []struct {
 		name    string
 		content string
@@ -885,8 +892,8 @@ func Test_parseRestrictionsTemplateByName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				want, wantErr := ParseRestrictionsTemplate([]byte(tt.content))
-				got, err := parseRestrictionsTemplateByName(tt.name)
+				want, wantErr := profileParser.ParseRestrictionsTemplate([]byte(tt.content))
+				got, err := profileParser.ParseRestrictionsTemplateByName(tt.name)
 				if err != nil && wantErr != nil && err.Error() != wantErr.Error() {
 					t.Errorf("parseRestrictionsTemplateByName() error = %v, wantErr %v", err, wantErr)
 					return
@@ -899,7 +906,7 @@ func Test_parseRestrictionsTemplateByName(t *testing.T) {
 	}
 }
 
-func Test_parseRotationTemplate(t *testing.T) {
+func TestProfileParser_ParseRotationTemplate(t *testing.T) {
 	tests := []struct {
 		name    string
 		content []byte
@@ -952,7 +959,7 @@ func Test_parseRotationTemplate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				got, err := ParseRotationTemplate(tt.content)
+				got, err := profileParser.ParseRotationTemplate(tt.content)
 				if (err != nil) != tt.wantErr {
 					t.Errorf("ParseRotationTemplate() error = %v, wantErr %v", err, tt.wantErr)
 					return
@@ -965,7 +972,7 @@ func Test_parseRotationTemplate(t *testing.T) {
 	}
 }
 
-func Test_parseRotationTemplateByName(t *testing.T) {
+func TestProfileParser_ParseRotationTemplateByName(t *testing.T) {
 	tests := []struct {
 		name     string
 		fullPath string
@@ -991,8 +998,8 @@ func Test_parseRotationTemplateByName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(
 			tt.name, func(t *testing.T) {
-				want, wantErr := ParseRotationTemplate([]byte(profileTemplateDummyData[tt.fullPath]))
-				got, err := parseRotationTemplateByName(tt.name)
+				want, wantErr := profileParser.ParseRotationTemplate([]byte(profileTemplateDummyData[tt.fullPath]))
+				got, err := profileParser.ParseRotationTemplateByName(tt.name)
 				if err != nil && wantErr != nil && err.Error() != wantErr.Error() {
 					t.Errorf("parseRotationTemplateByName() error = %v, wantErr %v", err, wantErr)
 					return

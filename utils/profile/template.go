@@ -14,20 +14,38 @@ import (
 
 type readFnc func(string) ([]byte, error)
 
-type TemplateReader struct {
+type TemplateReader interface {
+	ReadProfile(string) ([]byte, error)
+	ReadRestrictionsTemplate(string) ([]byte, error)
+	ReadRotationTemplate(string) ([]byte, error)
+	ReadCapabilityTemplate(string) ([]byte, error)
+}
+
+type FileTemplateReader struct {
 	globalBaseDir string
 	userBaseDir   string
 	reader        readFnc
 }
 
-func init() {
-	templateReader = newTemplateReader(fileutil.ReadFile)
+// ProfileParser is a type for parsing profiles and templates by using a TemplateReader
+type ProfileParser struct {
+	reader TemplateReader
 }
 
-var templateReader *TemplateReader
+// NewProfileParser creates a new ProfileParser from a TemplateReader
+func NewProfileParser(reader TemplateReader) *ProfileParser {
+	return &ProfileParser{reader: reader}
+}
 
-func newTemplateReader(reader readFnc) *TemplateReader {
-	return &TemplateReader{
+func init() {
+	DefaultFileBasedProfileParser = NewProfileParser(newFileTemplateReader(fileutil.ReadFile))
+}
+
+// DefaultFileBasedProfileParser is the default profile parser for file-based parsing
+var DefaultFileBasedProfileParser *ProfileParser
+
+func newFileTemplateReader(reader readFnc) *FileTemplateReader {
+	return &FileTemplateReader{
 		globalBaseDir: "/etc/mytoken",
 		userBaseDir:   userBasePath(),
 		reader:        reader,
@@ -43,7 +61,8 @@ func userBasePath() string {
 	return dot
 }
 
-func (r TemplateReader) ReadFile(relPath string) ([]byte, error) {
+// ReadFile reads any template file
+func (r FileTemplateReader) ReadFile(relPath string) ([]byte, error) {
 	globalP := path.Join(r.globalBaseDir, relPath)
 	userP := path.Join(r.userBaseDir, relPath)
 	global, _ := r.reader(globalP)
@@ -58,19 +77,26 @@ func (r TemplateReader) ReadFile(relPath string) ([]byte, error) {
 	return combined, nil
 }
 
-func (r TemplateReader) readRestrictionsTemplate(name string) ([]byte, error) {
+// ReadRestrictionsTemplate implements the TemplateReader interface
+func (r FileTemplateReader) ReadRestrictionsTemplate(name string) ([]byte, error) {
 	p := path.Join("restrictions.d", name)
 	return r.ReadFile(p)
 }
-func (r TemplateReader) readCapabilityTemplate(name string) ([]byte, error) {
+
+// ReadCapabilityTemplate implements the TemplateReader interface
+func (r FileTemplateReader) ReadCapabilityTemplate(name string) ([]byte, error) {
 	p := path.Join("capabilities.d", name)
 	return r.ReadFile(p)
 }
-func (r TemplateReader) readRotationTemplate(name string) ([]byte, error) {
+
+// ReadRotationTemplate implements the TemplateReader interface
+func (r FileTemplateReader) ReadRotationTemplate(name string) ([]byte, error) {
 	p := path.Join("rotation.d", name)
 	return r.ReadFile(p)
 }
-func (r TemplateReader) readProfile(name string) ([]byte, error) {
+
+// ReadProfile implements the TemplateReader interface
+func (r FileTemplateReader) ReadProfile(name string) ([]byte, error) {
 	p := path.Join("profiles.d", name)
 	return r.ReadFile(p)
 }

@@ -30,41 +30,42 @@ func (r *jsonraw) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func parseProfileByName(name string) (api.GeneralMytokenRequest, error) {
-	content, err := templateReader.readProfile(normalizeTemplateName(name))
+// ParseProfileByName parses the content of a profile by name
+func (p ProfileParser) ParseProfileByName(name string) (api.GeneralMytokenRequest, error) {
+	content, err := p.reader.ReadProfile(normalizeTemplateName(name))
 	if err != nil {
 		return api.GeneralMytokenRequest{}, err
 	}
-	return ParseProfile(content)
+	return p.ParseProfile(content)
 }
 
 // ParseProfile parses the content of a profile
-func ParseProfile(content []byte) (api.GeneralMytokenRequest, error) {
+func (p ProfileParser) ParseProfile(content []byte) (api.GeneralMytokenRequest, error) {
 	if len(content) == 0 {
 		return api.GeneralMytokenRequest{}, nil
 	}
 	var err error
-	var p profileUnmarshal
-	content, err = createFinalTemplate(content, templateReader.readProfile)
+	var pj profileUnmarshal
+	content, err = createFinalTemplate(content, p.reader.ReadProfile)
 	if err != nil {
-		return p.GeneralMytokenRequest, err
+		return pj.GeneralMytokenRequest, err
 	}
 	if len(content) > 0 {
-		if err = errors.WithStack(json.Unmarshal(content, &p)); err != nil {
-			return p.GeneralMytokenRequest, err
+		if err = errors.WithStack(json.Unmarshal(content, &pj)); err != nil {
+			return pj.GeneralMytokenRequest, err
 		}
 	}
-	p.GeneralMytokenRequest.Rotation, err = ParseRotationTemplate([]byte(p.Rotation))
+	pj.GeneralMytokenRequest.Rotation, err = p.ParseRotationTemplate([]byte(pj.Rotation))
 	if err != nil {
-		return p.GeneralMytokenRequest, err
+		return pj.GeneralMytokenRequest, err
 	}
-	p.GeneralMytokenRequest.Capabilities, err = ParseCapabilityTemplate([]byte(p.Capabilities))
+	pj.GeneralMytokenRequest.Capabilities, err = p.ParseCapabilityTemplate([]byte(pj.Capabilities))
 	if err != nil {
-		return p.GeneralMytokenRequest, err
+		return pj.GeneralMytokenRequest, err
 	}
-	p.GeneralMytokenRequest.Restrictions, err = ParseRestrictionsTemplate([]byte(p.Restrictions))
+	pj.GeneralMytokenRequest.Restrictions, err = p.ParseRestrictionsTemplate([]byte(pj.Restrictions))
 	if err != nil {
-		return p.GeneralMytokenRequest, err
+		return pj.GeneralMytokenRequest, err
 	}
-	return p.GeneralMytokenRequest, nil
+	return pj.GeneralMytokenRequest, nil
 }

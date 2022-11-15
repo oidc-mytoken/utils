@@ -12,8 +12,8 @@ import (
 )
 
 // ParseCapabilityTemplate parses the content of a capability template
-func ParseCapabilityTemplate(content []byte) (api.Capabilities, error) {
-	capStrings, err := _parseCapabilityTemplate(content)
+func (p ProfileParser) ParseCapabilityTemplate(content []byte) (api.Capabilities, error) {
+	capStrings, err := p.ParseCapabilityTemplateToStrings(content)
 	capStrings = utils.UniqueSlice(capStrings)
 	var caps api.Capabilities = nil
 	if err == nil {
@@ -22,15 +22,17 @@ func ParseCapabilityTemplate(content []byte) (api.Capabilities, error) {
 	return caps, err
 }
 
-func _parseCapabilityTemplateByName(name string) ([]string, error) {
-	content, err := templateReader.readCapabilityTemplate(normalizeTemplateName(name))
+// ParseCapabilityTemplateToStringsByName parses the content of a capability template into a slice of strings
+func (p ProfileParser) ParseCapabilityTemplateToStringsByName(name string) ([]string, error) {
+	content, err := p.reader.ReadCapabilityTemplate(normalizeTemplateName(name))
 	if err != nil {
 		return nil, err
 	}
-	return _parseCapabilityTemplate(content)
+	return p.ParseCapabilityTemplateToStrings(content)
 }
 
-func _parseCapabilityTemplate(content []byte) (capStrings []string, err error) {
+// ParseCapabilityTemplateToStrings parses the content of a capability template into a slice of strings
+func (p ProfileParser) ParseCapabilityTemplateToStrings(content []byte) (capStrings []string, err error) {
 	if len(content) == 0 {
 		return nil, nil
 	}
@@ -46,7 +48,7 @@ func _parseCapabilityTemplate(content []byte) (capStrings []string, err error) {
 		if !strings.HasPrefix(c, "@") {
 			capStrings = append(capStrings, c)
 		} else {
-			templateCaps, e := _parseCapabilityTemplateByName(c[1:])
+			templateCaps, e := p.ParseCapabilityTemplateToStringsByName(c[1:])
 			if e != nil {
 				err = e
 				return

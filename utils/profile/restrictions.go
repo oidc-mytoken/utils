@@ -11,23 +11,24 @@ import (
 	"github.com/oidc-mytoken/utils/utils/timerestriction"
 )
 
-func parseRestrictionsTemplateByName(name string) (api.Restrictions, error) {
-	content, err := templateReader.readRestrictionsTemplate(normalizeTemplateName(name))
+// ParseRestrictionsTemplateByName parses the content of a restrictions template by name
+func (p ProfileParser) ParseRestrictionsTemplateByName(name string) (api.Restrictions, error) {
+	content, err := p.reader.ReadRestrictionsTemplate(normalizeTemplateName(name))
 	if err != nil {
 		return nil, err
 	}
-	return ParseRestrictionsTemplate(content)
+	return p.ParseRestrictionsTemplate(content)
 }
 
 // ParseRestrictionsTemplate parses the content of a restrictions template
-func ParseRestrictionsTemplate(content []byte) (api.Restrictions, error) {
+func (p ProfileParser) ParseRestrictionsTemplate(content []byte) (api.Restrictions, error) {
 	if len(content) == 0 {
 		return nil, nil
 	}
 
 	var err error
 	var restr []timerestriction.APIRestriction
-	content, err = createFinalTemplate(content, templateReader.readRestrictionsTemplate)
+	content, err = createFinalTemplate(content, p.reader.ReadRestrictionsTemplate)
 	if err != nil {
 		return nil, err
 	}
