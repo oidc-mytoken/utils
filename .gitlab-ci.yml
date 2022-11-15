@@ -1,0 +1,44 @@
+image: golang:1.16
+stages:
+  - build
+  - test
+  - lint
+
+default:
+  tags:
+    - linux
+  cache:
+    paths:
+      - .cache
+
+
+before_script:
+  - mkdir -p .cache
+  - export GOPATH=${CI_PROJECT_DIR}/.cache
+
+test:
+  stage: test
+  script:
+    - go test -v ./...
+
+test_race:
+  stage: test
+  script:
+    - go test -race -v ./...
+
+lint:
+  stage: lint
+  before_script:
+    - go install golang.org/x/lint/golint@latest
+  script:
+    - golint -set_exit_status ./...
+
+vet:
+  stage: lint
+  script:
+    - go vet ./...
+
+build:
+  stage: build
+  script:
+    - go build ./...
