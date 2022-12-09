@@ -786,8 +786,8 @@ func TestProfileParser_ParseRestrictionsTemplate(t *testing.T) {
 		{
 			name:    "exp number",
 			content: []byte(`{"exp":1}`),
-			want:    nil,
-			wantErr: true,
+			want:    api.Restrictions{&api.Restriction{ExpiresAt: 1}},
+			wantErr: false,
 		},
 		{
 			name:    "exp number string",

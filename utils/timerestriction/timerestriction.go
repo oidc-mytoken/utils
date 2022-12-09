@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/oidc-mytoken/api/v0"
+	"github.com/pkg/errors"
 
 	"github.com/oidc-mytoken/utils/unixtime"
 	"github.com/oidc-mytoken/utils/utils/duration"
@@ -32,8 +33,28 @@ func ParseTime(t string) (int64, error) {
 
 type restrictionWT struct {
 	api.Restriction
-	ExpiresAt string `json:"exp"`
-	NotBefore string `json:"nbf"`
+	ExpiresAt timeValue `json:"exp"`
+	NotBefore timeValue `json:"nbf"`
+}
+
+type timeValue struct {
+	Value int64
+}
+
+func (tv *timeValue) UnmarshalJSON(data []byte) error {
+	if err := errors.WithStack(json.Unmarshal(data, &tv.Value)); err == nil {
+		return nil
+	}
+	var str string
+	if err := errors.WithStack(json.Unmarshal(data, &str)); err != nil {
+		return err
+	}
+	t, err := ParseTime(str)
+	if err != nil {
+		return err
+	}
+	tv.Value = t
+	return nil
 }
 
 type APIRestriction api.Restriction
@@ -43,16 +64,8 @@ func (r *APIRestriction) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &rr); err != nil {
 		return err
 	}
-	t, err := ParseTime(rr.ExpiresAt)
-	if err != nil {
-		return err
-	}
-	rr.Restriction.ExpiresAt = t
-	t, err = ParseTime(rr.NotBefore)
-	if err != nil {
-		return err
-	}
-	rr.Restriction.NotBefore = t
+	rr.Restriction.ExpiresAt = rr.ExpiresAt.Value
+	rr.Restriction.NotBefore = rr.NotBefore.Value
 	*r = APIRestriction(rr.Restriction)
 	return nil
 }
