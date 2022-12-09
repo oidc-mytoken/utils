@@ -9,6 +9,7 @@ import (
 
 	"github.com/oidc-mytoken/utils/utils"
 	"github.com/oidc-mytoken/utils/utils/jsonutils"
+	"github.com/oidc-mytoken/utils/utils/stringutils"
 )
 
 // ParseCapabilityTemplate parses the content of a capability template
@@ -42,7 +43,7 @@ func (p ProfileParser) ParseCapabilityTemplateToStrings(content []byte) (capStri
 			return
 		}
 	} else {
-		tmpCapStrings = strings.Split(string(content), " ")
+		tmpCapStrings = strings.Split(stringutils.Unwrap(string(content), "\""), " ")
 	}
 	for _, c := range tmpCapStrings {
 		if !strings.HasPrefix(c, "@") {

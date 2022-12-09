@@ -10,6 +10,7 @@ import (
 
 	"github.com/oidc-mytoken/utils/utils/fileutil"
 	"github.com/oidc-mytoken/utils/utils/jsonutils"
+	"github.com/oidc-mytoken/utils/utils/stringutils"
 )
 
 type readFnc func(string) ([]byte, error)
@@ -139,7 +140,7 @@ func createFinalTemplate(content []byte, read readFnc) ([]byte, error) {
 
 	if !jsonutils.IsJSONObject(content) {
 		// must be one or multiple template names
-		templates := strings.Split(string(content), " ")
+		templates := strings.Split(stringutils.Unwrap(string(content), "\""), " ")
 		if len(templates) == 1 {
 			// must be single template name
 			c, err := read(normalizeTemplateName(templates[0]))

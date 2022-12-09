@@ -486,6 +486,17 @@ func TestProfileParser_ParseCapabilityTemplate(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "quoted string",
+			content: []byte("\"AT tokeninfo\""),
+			want: api.NewCapabilities(
+				[]string{
+					"AT",
+					"tokeninfo",
+				},
+			),
+			wantErr: false,
+		},
+		{
 			name:    "string with non-existing cap",
 			content: []byte("AT other"),
 			want: api.NewCapabilities(
