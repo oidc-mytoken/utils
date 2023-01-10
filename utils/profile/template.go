@@ -1,6 +1,7 @@
 package profile
 
 import (
+	"bytes"
 	"encoding/json"
 	"path"
 	"strings"
@@ -115,6 +116,16 @@ type includeTemplates struct {
 
 func createFinalTemplate(content []byte, read readFnc) ([]byte, error) {
 	if len(content) == 0 {
+		return nil, nil
+	}
+	if bytes.Equal(
+		content, []byte{
+			'n',
+			'u',
+			'l',
+			'l',
+		},
+	) {
 		return nil, nil
 	}
 	baseIsArray := jsonutils.IsJSONArray(content)
