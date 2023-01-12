@@ -28,9 +28,11 @@ func (p ProfileParser) ParseRestrictionsTemplate(content []byte) (api.Restrictio
 
 	var err error
 	var restr []timerestriction.APIRestriction
-	content, err = createFinalTemplate(content, p.reader.ReadRestrictionsTemplate)
-	if err != nil {
-		return nil, err
+	if p.reader != nil {
+		content, err = createFinalTemplate(content, p.reader.ReadRestrictionsTemplate)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if len(content) == 0 {
 		return nil, nil

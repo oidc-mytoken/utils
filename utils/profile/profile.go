@@ -46,9 +46,11 @@ func (p ProfileParser) ParseProfile(content []byte) (api.GeneralMytokenRequest, 
 	}
 	var err error
 	var pj profileUnmarshal
-	content, err = createFinalTemplate(content, p.reader.ReadProfile)
-	if err != nil {
-		return pj.GeneralMytokenRequest, err
+	if p.reader != nil {
+		content, err = createFinalTemplate(content, p.reader.ReadProfile)
+		if err != nil {
+			return pj.GeneralMytokenRequest, err
+		}
 	}
 	if len(content) > 0 {
 		if err = errors.WithStack(json.Unmarshal(content, &pj)); err != nil {

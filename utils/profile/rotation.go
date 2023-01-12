@@ -23,9 +23,11 @@ func (p ProfileParser) ParseRotationTemplate(content []byte) (*api.Rotation, err
 	}
 	var err error
 	var rot api.Rotation
-	content, err = createFinalTemplate(content, p.reader.ReadRotationTemplate)
-	if err != nil {
-		return nil, err
+	if p.reader != nil {
+		content, err = createFinalTemplate(content, p.reader.ReadRotationTemplate)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if len(content) == 0 {
 		return nil, nil

@@ -25,6 +25,9 @@ func (p ProfileParser) ParseCapabilityTemplate(content []byte) (api.Capabilities
 
 // ParseCapabilityTemplateToStringsByName parses the content of a capability template into a slice of strings
 func (p ProfileParser) ParseCapabilityTemplateToStringsByName(name string) ([]string, error) {
+	if p.reader == nil {
+		return []string{"@" + name}, nil
+	}
 	content, err := p.reader.ReadCapabilityTemplate(normalizeTemplateName(name))
 	if err != nil {
 		return nil, err

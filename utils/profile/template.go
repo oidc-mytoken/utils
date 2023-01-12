@@ -128,6 +128,9 @@ func createFinalTemplate(content []byte, read readFnc) ([]byte, error) {
 	) {
 		return nil, nil
 	}
+	if read == nil {
+		return content, nil
+	}
 	baseIsArray := jsonutils.IsJSONArray(content)
 	if baseIsArray {
 		var contents []json.RawMessage
