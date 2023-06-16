@@ -51,6 +51,10 @@ func (t *UnixTime) Scan(src interface{}) error {
 	if err := errors.WithStack(tmp.Scan(src)); err != nil {
 		return err
 	}
-	*t = New(tmp.Time)
+	if tmp.Valid {
+		*t = New(tmp.Time)
+	} else {
+		*t = 0
+	}
 	return nil
 }
