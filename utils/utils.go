@@ -14,30 +14,42 @@ func init() {
 	src = rand.NewSource(time.Now().UnixNano())
 }
 
-const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const alphanumericBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const letterReadableBytes = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNOPQRSTUVWXYZ"
 const (
 	letterIdxBits = 6                    // 6 bits to represent a letter index
 	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
 	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
 )
 
-// RandASCIIString returns a random string consisting of ASCII characters of the given
-// length.
-func RandASCIIString(n int) string {
+// randStringFromByteSource returns a random string of the given length consisting of characters given in byteSource.
+func randStringFromByteSource(n int, byteSource string) string {
 	b := make([]byte, n)
 	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
 	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
 		if remain == 0 {
 			cache, remain = src.Int63(), letterIdxMax
 		}
-		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
-			b[i] = letterBytes[idx]
+		if idx := int(cache & letterIdxMask); idx < len(byteSource) {
+			b[i] = byteSource[idx]
 			i--
 		}
 		cache >>= letterIdxBits
 		remain--
 	}
 	return *(*string)(unsafe.Pointer(&b)) // unsafe is fine here skipcq: GSC-G103
+}
+
+// RandASCIIString returns a random string consisting of (alphanumeric) ASCII characters of the given
+// length.
+func RandASCIIString(n int) string {
+	return randStringFromByteSource(n, alphanumericBytes)
+}
+
+// RandReadableAlphaString returns a random string consisting of only ASCII letters with letters that are commonly
+// mixed up filtered out (e.g. l and I)
+func RandReadableAlphaString(n int) string {
+	return randStringFromByteSource(n, letterReadableBytes)
 }
 
 // IntersectSlices returns the common elements of two slices
