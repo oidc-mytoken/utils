@@ -146,7 +146,7 @@ func Test_MergeJSONArrays(t *testing.T) {
 	for _, test := range tests {
 		t.Run(
 			test.name, func(t *testing.T) {
-				res := MergeJSONArrays(test.a1, test.a2)
+				res, _ := MergeJSONArrays(test.a1, test.a2)
 				if !bytes.Equal(test.expected, res) {
 					t.Errorf("MergeJSONArrays() = %v, want %v", res, test.expected)
 				}

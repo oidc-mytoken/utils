@@ -3,6 +3,8 @@ package jsonutils
 import (
 	"bytes"
 	"encoding/json"
+
+	"github.com/pkg/errors"
 )
 
 // IsJSONObject checks if the passed data is a JSON Object
@@ -22,17 +24,79 @@ var emptyArray = []byte{
 	']',
 }
 
+func MergeJSONObjects(overwrite bool, jsons ...[]byte) ([]byte, error) {
+	data := make([]map[string]json.RawMessage, len(jsons))
+	for i, j := range jsons {
+		m := make(map[string]json.RawMessage)
+		if err := json.Unmarshal(j, &m); err != nil {
+			return nil, err
+		}
+		data[i] = m
+	}
+	final := map[string]json.RawMessage{}
+	for _, d := range data {
+		for k, v := range d {
+			finalV, finalFound := final[k]
+			if !finalFound {
+				final[k] = v
+				continue
+			}
+			if IsJSONArray(finalV) {
+				if !IsJSONArray(v) {
+					v = Arrayify(v)
+				}
+				var err error
+				final[k], err = MergeJSONArrays(finalV, v)
+				if err != nil {
+					return nil, err
+				}
+				continue
+			}
+			if IsJSONObject(finalV) {
+				if !IsJSONObject(v) {
+					return nil, errors.Errorf("cannot merge json object and non-json object for key '%s'", k)
+				}
+				merged, err := MergeJSONObjects(overwrite, finalV, v)
+				if err != nil {
+					return nil, err
+				}
+				final[k] = merged
+			}
+			if overwrite {
+				final[k] = v
+			}
+		}
+	}
+	return json.Marshal(final)
+}
+
 // MergeJSONArrays merges two json arrays into one
-func MergeJSONArrays(a1, a2 []byte) []byte {
-	if bytes.Equal(bytes.Trim(a1, " "), emptyArray) {
-		return a2
+func MergeJSONArrays(arrays ...[]byte) ([]byte, error) {
+	datas := make([][]json.RawMessage, len(arrays))
+	for i, a := range arrays {
+		j := make([]json.RawMessage, 0)
+		if err := json.Unmarshal(a, &j); err != nil {
+			return nil, err
+		}
+		datas[i] = j
 	}
-	if bytes.Equal(bytes.Trim(a2, " "), emptyArray) {
-		return a1
+	out := make([]json.RawMessage, 0)
+	for _, a := range datas {
+		for _, aEl := range a {
+			found := false
+			for _, oEl := range out {
+				if bytes.Equal(aEl, oEl) {
+					found = true
+					break
+				}
+			}
+			if !found {
+				out = append(out, aEl)
+			}
+		}
 	}
-	res := append(a1[:bytes.LastIndexByte(a1, ']')], ',') // skipcq: CRT-D0001
-	res = append(res, a2[bytes.IndexByte(a2, '[')+1:]...)
-	return res
+
+	return json.Marshal(out)
 }
 
 // Arrayify creates an JSON array with the passed object in

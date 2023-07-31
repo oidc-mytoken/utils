@@ -6,7 +6,6 @@ import (
 	"path"
 	"strings"
 
-	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/pkg/errors"
 
 	"github.com/oidc-mytoken/utils/utils/fileutil"
@@ -75,7 +74,7 @@ func (r FileTemplateReader) ReadFile(relPath string) ([]byte, error) {
 	if len(global) == 0 {
 		return user, nil
 	}
-	combined, _ := jsonpatch.MergePatch(global, user)
+	combined, _ := jsonutils.MergeJSONObjects(false, user, global)
 	return combined, nil
 }
 
@@ -147,7 +146,10 @@ func createFinalTemplate(content []byte, read readFnc) ([]byte, error) {
 			if !jsonutils.IsJSONArray(cf) {
 				cf = jsonutils.Arrayify(cf)
 			}
-			final = jsonutils.MergeJSONArrays(final, cf)
+			final, err = jsonutils.MergeJSONArrays(final, cf)
+			if err != nil {
+				return nil, err
+			}
 		}
 		return final, nil
 	}
@@ -197,7 +199,7 @@ func parseIncludes(content []byte, includes []string, read readFnc) ([]byte, err
 		}
 		isArray := jsonutils.IsJSONArray(includeContent)
 		if !baseIsArray && !isArray {
-			content, _ = jsonpatch.MergePatch(includeContent, content)
+			content, _ = jsonutils.MergeJSONObjects(false, content, includeContent)
 			continue
 		}
 		if !baseIsArray {
@@ -207,7 +209,10 @@ func parseIncludes(content []byte, includes []string, read readFnc) ([]byte, err
 		if !isArray {
 			includeContent = jsonutils.Arrayify(includeContent)
 		}
-		content = jsonutils.MergeJSONArrays(content, includeContent)
+		content, err = jsonutils.MergeJSONArrays(content, includeContent)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return content, nil
 }
