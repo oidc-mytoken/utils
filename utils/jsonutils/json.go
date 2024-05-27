@@ -24,6 +24,7 @@ var emptyArray = []byte{
 	']',
 }
 
+// MergeJSONObjects merges two or more json objects into one
 func MergeJSONObjects(overwrite bool, jsons ...[]byte) ([]byte, error) {
 	data := make([]map[string]json.RawMessage, len(jsons))
 	for i, j := range jsons {
