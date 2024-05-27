@@ -31,7 +31,7 @@ func (r *jsonraw) UnmarshalJSON(data []byte) error {
 }
 
 // ParseProfileByName parses the content of a profile by name
-func (p ProfileParser) ParseProfileByName(name string) (api.GeneralMytokenRequest, error) {
+func (p Parser) ParseProfileByName(name string) (api.GeneralMytokenRequest, error) {
 	content, err := p.reader.ReadProfile(normalizeTemplateName(name))
 	if err != nil {
 		return api.GeneralMytokenRequest{}, err
@@ -40,7 +40,7 @@ func (p ProfileParser) ParseProfileByName(name string) (api.GeneralMytokenReques
 }
 
 // ParseProfile parses the content of a profile
-func (p ProfileParser) ParseProfile(content []byte) (api.GeneralMytokenRequest, error) {
+func (p Parser) ParseProfile(content []byte) (api.GeneralMytokenRequest, error) {
 	if len(content) == 0 {
 		return api.GeneralMytokenRequest{}, nil
 	}

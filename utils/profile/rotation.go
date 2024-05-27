@@ -8,7 +8,7 @@ import (
 )
 
 // ParseRotationTemplateByName parses the content of a rotation template by name
-func (p ProfileParser) ParseRotationTemplateByName(name string) (*api.Rotation, error) {
+func (p Parser) ParseRotationTemplateByName(name string) (*api.Rotation, error) {
 	content, err := p.reader.ReadRotationTemplate(normalizeTemplateName(name))
 	if err != nil {
 		return nil, err
@@ -17,7 +17,7 @@ func (p ProfileParser) ParseRotationTemplateByName(name string) (*api.Rotation, 
 }
 
 // ParseRotationTemplate parses the content of a rotation template
-func (p ProfileParser) ParseRotationTemplate(content []byte) (*api.Rotation, error) {
+func (p Parser) ParseRotationTemplate(content []byte) (*api.Rotation, error) {
 	if len(content) == 0 {
 		return nil, nil
 	}

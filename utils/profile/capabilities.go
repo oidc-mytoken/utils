@@ -13,7 +13,7 @@ import (
 )
 
 // ParseCapabilityTemplate parses the content of a capability template
-func (p ProfileParser) ParseCapabilityTemplate(content []byte) (api.Capabilities, error) {
+func (p Parser) ParseCapabilityTemplate(content []byte) (api.Capabilities, error) {
 	capStrings, err := p.ParseCapabilityTemplateToStrings(content)
 	capStrings = utils.UniqueSlice(capStrings)
 	var caps api.Capabilities = nil
@@ -24,7 +24,7 @@ func (p ProfileParser) ParseCapabilityTemplate(content []byte) (api.Capabilities
 }
 
 // ParseCapabilityTemplateToStringsByName parses the content of a capability template into a slice of strings
-func (p ProfileParser) ParseCapabilityTemplateToStringsByName(name string) ([]string, error) {
+func (p Parser) ParseCapabilityTemplateToStringsByName(name string) ([]string, error) {
 	if p.reader == nil {
 		return []string{"@" + name}, nil
 	}
@@ -36,7 +36,7 @@ func (p ProfileParser) ParseCapabilityTemplateToStringsByName(name string) ([]st
 }
 
 // ParseCapabilityTemplateToStrings parses the content of a capability template into a slice of strings
-func (p ProfileParser) ParseCapabilityTemplateToStrings(content []byte) (capStrings []string, err error) {
+func (p Parser) ParseCapabilityTemplateToStrings(content []byte) (capStrings []string, err error) {
 	if len(content) == 0 {
 		return nil, nil
 	}

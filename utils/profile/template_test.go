@@ -67,7 +67,7 @@ var profileTemplateDummyData = map[string]string{
 	"~/.config/mytoken/restrictions.d/G":  `{"exp":"+2d","usages_AT":1}`,
 }
 
-var profileParser *ProfileParser
+var profileParser *Parser
 var fileReader *FileTemplateReader
 
 func TestMain(m *testing.M) {

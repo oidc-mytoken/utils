@@ -12,7 +12,7 @@ import (
 )
 
 // ParseRestrictionsTemplateByName parses the content of a restrictions template by name
-func (p ProfileParser) ParseRestrictionsTemplateByName(name string) (api.Restrictions, error) {
+func (p Parser) ParseRestrictionsTemplateByName(name string) (api.Restrictions, error) {
 	content, err := p.reader.ReadRestrictionsTemplate(normalizeTemplateName(name))
 	if err != nil {
 		return nil, err
@@ -21,7 +21,7 @@ func (p ProfileParser) ParseRestrictionsTemplateByName(name string) (api.Restric
 }
 
 // ParseRestrictionsTemplate parses the content of a restrictions template
-func (p ProfileParser) ParseRestrictionsTemplate(content []byte) (api.Restrictions, error) {
+func (p Parser) ParseRestrictionsTemplate(content []byte) (api.Restrictions, error) {
 	if len(content) == 0 {
 		return nil, nil
 	}

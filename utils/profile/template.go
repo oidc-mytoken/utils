@@ -15,6 +15,7 @@ import (
 
 type readFnc func(string) ([]byte, error)
 
+// TemplateReader is an interface for reading templates/profiles
 type TemplateReader interface {
 	ReadProfile(string) ([]byte, error)
 	ReadRestrictionsTemplate(string) ([]byte, error)
@@ -22,28 +23,29 @@ type TemplateReader interface {
 	ReadCapabilityTemplate(string) ([]byte, error)
 }
 
+// FileTemplateReader is a type for reading templates from files, implementing TemplateReader
 type FileTemplateReader struct {
 	globalBaseDir string
 	userBaseDir   string
 	reader        readFnc
 }
 
-// ProfileParser is a type for parsing profiles and templates by using a TemplateReader
-type ProfileParser struct {
+// Parser is a type for parsing profiles and templates by using a TemplateReader
+type Parser struct {
 	reader TemplateReader
 }
 
-// NewProfileParser creates a new ProfileParser from a TemplateReader
-func NewProfileParser(reader TemplateReader) *ProfileParser {
-	return &ProfileParser{reader: reader}
+// NewParser creates a new Parser from a TemplateReader
+func NewParser(reader TemplateReader) *Parser {
+	return &Parser{reader: reader}
 }
 
 func init() {
-	DefaultFileBasedProfileParser = NewProfileParser(newFileTemplateReader(fileutil.ReadFile))
+	DefaultFileBasedProfileParser = NewParser(newFileTemplateReader(fileutil.ReadFile))
 }
 
 // DefaultFileBasedProfileParser is the default profile parser for file-based parsing
-var DefaultFileBasedProfileParser *ProfileParser
+var DefaultFileBasedProfileParser *Parser
 
 func newFileTemplateReader(reader readFnc) *FileTemplateReader {
 	return &FileTemplateReader{

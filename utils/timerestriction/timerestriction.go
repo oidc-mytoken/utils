@@ -12,6 +12,7 @@ import (
 	"github.com/oidc-mytoken/utils/utils/duration"
 )
 
+// ParseTime parses a time string
 func ParseTime(t string) (int64, error) {
 	if t == "" {
 		return 0, nil
@@ -41,6 +42,7 @@ type timeValue struct {
 	Value int64
 }
 
+// UnmarshalJSON implements the json.Unmarshaler interface
 func (tv *timeValue) UnmarshalJSON(data []byte) error {
 	if err := errors.WithStack(json.Unmarshal(data, &tv.Value)); err == nil {
 		return nil
@@ -57,8 +59,10 @@ func (tv *timeValue) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+// APIRestriction is a type for extended an api.Restriction
 type APIRestriction api.Restriction
 
+// UnmarshalJSON implements the json.Unmarshaler interface
 func (r *APIRestriction) UnmarshalJSON(data []byte) error {
 	rr := restrictionWT{}
 	if err := json.Unmarshal(data, &rr); err != nil {
