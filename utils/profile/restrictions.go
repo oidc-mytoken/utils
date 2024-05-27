@@ -45,6 +45,7 @@ func (p Parser) ParseRestrictionsTemplate(content []byte) (api.Restrictions, err
 	}
 	finalRestrs := make(api.Restrictions, 0)
 	for _, r := range restr {
+		r.IncludedProfiles = nil
 		if !reflect.DeepEqual(r, timerestriction.APIRestriction{}) {
 			ar := api.Restriction(r)
 			finalRestrs = append(finalRestrs, &ar)

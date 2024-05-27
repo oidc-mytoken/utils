@@ -33,5 +33,6 @@ func (p Parser) ParseRotationTemplate(content []byte) (*api.Rotation, error) {
 		return nil, nil
 	}
 	err = errors.WithStack(json.Unmarshal(content, &rot))
+	rot.IncludedProfiles = nil
 	return &rot, err
 }

@@ -57,6 +57,7 @@ func (p Parser) ParseProfile(content []byte) (api.GeneralMytokenRequest, error) 
 			return pj.GeneralMytokenRequest, err
 		}
 	}
+	pj.IncludedProfiles = nil
 	pj.GeneralMytokenRequest.Rotation, err = p.ParseRotationTemplate([]byte(pj.Rotation))
 	if err != nil {
 		return pj.GeneralMytokenRequest, err

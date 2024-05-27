@@ -711,6 +711,7 @@ func TestProfileParser_ParseProfile(t *testing.T) {
 				}
 				if !reflect.DeepEqual(got, tt.want) {
 					t.Errorf("ParseProfile() got = %+v, want %+v", got, tt.want)
+					return
 				}
 			},
 		)
@@ -839,6 +840,12 @@ func TestProfileParser_ParseRestrictionsTemplate(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "single include string in object without @",
+			content: []byte(`{"include":"example"}`),
+			want:    exampleRestrictions,
+			wantErr: false,
+		},
+		{
 			name:    "single include in object without @",
 			content: []byte(`{"include":["example"]}`),
 			want:    exampleRestrictions,
@@ -867,6 +874,7 @@ func TestProfileParser_ParseRestrictionsTemplate(t *testing.T) {
 				}
 				if !reflect.DeepEqual(got, tt.want) {
 					t.Errorf("ParseRestrictionsTemplate() got = %+v, want %+v", got, tt.want)
+					return
 				}
 			},
 		)
