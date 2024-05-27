@@ -1,3 +1,9 @@
+include:
+  - 'https://codebase.helmholtz.cloud/m-team/tools/ci-voodoo/-/raw/master/ci-include/github-status-sync.yml'
+
+variables:
+  UPSTREAM_PROJECT: oidc-mytoken/utils
+
 image: golang:1.21
 stages:
   - build
