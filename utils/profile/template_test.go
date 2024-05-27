@@ -73,7 +73,7 @@ var fileReader *FileTemplateReader
 func TestMain(m *testing.M) {
 	fileReader = newFileTemplateReader(readDummyData)
 	fileReader.userBaseDir = "~/.config/mytoken"
-	profileParser = NewProfileParser(fileReader)
+	profileParser = NewParser(fileReader)
 	os.Exit(m.Run())
 }
 
