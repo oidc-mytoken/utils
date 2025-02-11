@@ -1,22 +1,23 @@
 package jwtutils
 
 import (
+	"context"
 	"encoding/base64"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/lestrrat-go/jwx/jwt"
 	log "github.com/sirupsen/logrus"
 )
 
 // GetFromJWT returns the values for the requested keys from the JWT (or all)
 func GetFromJWT(rlog log.Ext1FieldLogger, token string, key ...string) map[string]interface{} {
-	atJWT, _ := jwt.Parse(token, nil)
-	if atJWT == nil {
+	tokenJWT, err := jwt.Parse([]byte(token))
+	if err != nil || tokenJWT == nil {
 		return nil
 	}
 	rlog.Trace("Parsed token")
-	claims, ok := atJWT.Claims.(jwt.MapClaims)
-	if !ok {
+	claims, err := tokenJWT.AsMap(context.Background())
+	if err != nil {
 		return nil
 	}
 	if len(key) == 0 {
