@@ -10,7 +10,7 @@ require (
 	github.com/oidc-mytoken/api v0.11.2-0.20240426092102-fa4d583a79ad
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/valyala/fasthttp v1.58.0
+	github.com/valyala/fasthttp v1.59.0
 )
 
 require (
