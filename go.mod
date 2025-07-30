@@ -5,7 +5,7 @@ go 1.23.0
 toolchain go1.24.0
 
 require (
-	github.com/coreos/go-oidc/v3 v3.14.1
+	github.com/coreos/go-oidc/v3 v3.15.0
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/jinzhu/copier v0.4.0
 	github.com/lestrrat-go/jwx v1.2.30
