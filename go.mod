@@ -3,7 +3,7 @@ module github.com/oidc-mytoken/utils
 go 1.24.0
 
 require (
-	github.com/coreos/go-oidc/v3 v3.14.1
+	github.com/coreos/go-oidc/v3 v3.16.0
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/jinzhu/copier v0.4.0
 	github.com/lestrrat-go/jwx v1.2.31
@@ -16,7 +16,7 @@ require (
 require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.4.0 // indirect
-	github.com/go-jose/go-jose/v4 v4.0.5 // indirect
+	github.com/go-jose/go-jose/v4 v4.1.3 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
 	github.com/klauspost/compress v1.18.1 // indirect
 	github.com/lestrrat-go/backoff/v2 v2.0.8 // indirect
