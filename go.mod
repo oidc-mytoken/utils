@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/coreos/go-oidc/v3 v3.16.0
-	github.com/go-resty/resty/v2 v2.16.5
+	github.com/go-resty/resty/v2 v2.17.1
 	github.com/jinzhu/copier v0.4.0
 	github.com/lestrrat-go/jwx v1.2.31
 	github.com/oidc-mytoken/api v0.11.2-0.20240426092102-fa4d583a79ad
