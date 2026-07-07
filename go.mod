@@ -7,7 +7,7 @@ require (
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/jinzhu/copier v0.4.0
 	github.com/lestrrat-go/jwx v1.2.31
-	github.com/oidc-mytoken/api v0.11.2-0.20240426092102-fa4d583a79ad
+	github.com/oidc-mytoken/api v0.12.1
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/valyala/fasthttp v1.68.0
