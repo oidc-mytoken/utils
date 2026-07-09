@@ -9,7 +9,7 @@ require (
 	github.com/lestrrat-go/jwx v1.2.31
 	github.com/oidc-mytoken/api v0.12.1
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	github.com/valyala/fasthttp v1.68.0
 )
 
