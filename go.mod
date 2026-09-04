@@ -3,7 +3,7 @@ module github.com/oidc-mytoken/utils
 go 1.25.8
 
 require (
-	github.com/coreos/go-oidc/v3 v3.20.0
+	github.com/coreos/go-oidc/v3 v3.21.0
 	github.com/go-resty/resty/v2 v2.17.2
 	github.com/jinzhu/copier v0.4.0
 	github.com/lestrrat-go/jwx v1.2.31
